@@ -53,6 +53,9 @@ public class Button extends ButtonBase {
      * A default Button is the button that receives
      * a keyboard VK_ENTER press, if no other node in the scene consumes it.
      */
+    private static final javafx.css.PseudoClass PSEUDO_CLASS_DEFAULT = javafx.css.PseudoClass.getPseudoClass("default");
+    private static final javafx.css.PseudoClass PSEUDO_CLASS_CANCEL = javafx.css.PseudoClass.getPseudoClass("cancel");
+
     private BooleanProperty defaultButton;
     public final void setDefaultButton(boolean value) {
         defaultButtonProperty().setValue(value);
@@ -63,7 +66,7 @@ public class Button extends ButtonBase {
 
     public final BooleanProperty defaultButtonProperty() {
         if (defaultButton == null) {
-            defaultButton = new SimpleBooleanProperty(false)/* {
+            defaultButton = new SimpleBooleanProperty(false) {
                 @Override protected void invalidated() {
                     pseudoClassStateChanged(PSEUDO_CLASS_DEFAULT, get());
                 }
@@ -77,7 +80,7 @@ public class Button extends ButtonBase {
                 public String getName() {
                     return "defaultButton";
                 }
-            }*/;
+            };
         }
         return defaultButton;
     }
@@ -97,7 +100,7 @@ public class Button extends ButtonBase {
 
     public final BooleanProperty cancelButtonProperty() {
         if (cancelButton == null) {
-            cancelButton = new SimpleBooleanProperty(false)/* {
+            cancelButton = new SimpleBooleanProperty(false) {
                 @Override protected void invalidated() {
                     pseudoClassStateChanged(PSEUDO_CLASS_CANCEL, get());
                 }
@@ -111,7 +114,7 @@ public class Button extends ButtonBase {
                 public String getName() {
                     return "cancelButton";
                 }
-            }*/;
+            };
         }
         return cancelButton;
     }

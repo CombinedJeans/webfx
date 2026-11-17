@@ -90,6 +90,37 @@ public class Parent extends Node {
         return children;
     }
 
+    private ObservableList<String> stylesheets;
+
+    /**
+     * Gets an observable list of string URLs linking to the stylesheets to use with this Parent's contents.
+     * <p>
+     * WebFX implementation note: the browser can't restrict a stylesheet to a part of the page, so these stylesheets
+     * are simply added to the stylesheets of the scene (as soon as this Parent is in a scene), and therefore apply to
+     * the whole scene. They are not removed from the scene when they are removed from this list.
+     *
+     * @return the list of stylesheets to use with this Parent
+     */
+    public final ObservableList<String> getStylesheets() {
+        if (stylesheets == null) {
+            stylesheets = FXCollections.observableArrayList();
+            stylesheets.addListener((javafx.beans.Observable observable) -> forwardStylesheetsToScene());
+            sceneProperty().addListener((observable, oldScene, newScene) -> forwardStylesheetsToScene());
+        }
+        return stylesheets;
+    }
+
+    private void forwardStylesheetsToScene() {
+        Scene scene = getScene();
+        if (scene == null)
+            return;
+        ObservableList<String> sceneStylesheets = scene.getStylesheets();
+        for (String stylesheet : stylesheets) {
+            if (stylesheet != null && !sceneStylesheets.contains(stylesheet))
+                sceneStylesheets.add(stylesheet);
+        }
+    }
+
     /**
      * A constant reference to an unmodifiable view of the children, such that every time
      * we ask for an unmodifiable list of children, we don't actually create a new
@@ -457,7 +488,19 @@ public class Parent extends Node {
 */
                     }
                 }
-                setLayoutFlag(LayoutFlags.CLEAN);
+                // WebFX: a child can need a layout again after its turn in the loop above (ex: resized by a sibling
+                // layout). As requestParentLayout() doesn't propagate requests during a layout pass, such a child would
+                // never be laid out. So in that case this parent stays a dirty branch, and the next pulse goes down to it.
+                boolean childStillDirty = false;
+                for (Node child : children) {
+                    if (child instanceof Parent && ((Parent) child).layoutFlag != LayoutFlags.CLEAN) {
+                        childStillDirty = true;
+                        break;
+                    }
+                }
+                setLayoutFlag(childStillDirty ? LayoutFlags.DIRTY_BRANCH : LayoutFlags.CLEAN);
+                if (childStillDirty && isSceneRoot())
+                    requestNextPulse();
                 performingLayout = false;
                 break;
         }

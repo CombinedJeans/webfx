@@ -1774,7 +1774,14 @@ public class Region extends Parent implements
     }
 
     private static double scaledRound(double value, double scale) {
-        return Math.round(value * scale) / scale;
+        double scaled = value * scale;
+        // WebFX: Math.round() returns a long, which can't hold huge values such as Double.MAX_VALUE (= unlimited max
+        // size). The JVM clamps them to Long.MAX_VALUE, but TeaVM returns 0, which made for example the growing columns
+        // of a GridPane (limited by their max width) not grow at all. Such values are integers anyway, so they are
+        // returned unchanged.
+        if (Double.isNaN(scaled) || Math.abs(scaled) >= 1e15)
+            return value;
+        return Math.round(scaled) / scale;
     }
 
     private static double scaledFloor(double value, double scale) {

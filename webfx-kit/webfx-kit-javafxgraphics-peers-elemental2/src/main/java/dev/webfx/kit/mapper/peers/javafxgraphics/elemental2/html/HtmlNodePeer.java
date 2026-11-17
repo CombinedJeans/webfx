@@ -50,6 +50,8 @@ public abstract class HtmlNodePeer
     @Override
     protected void onNodePropertiesChanged(ObservableMap<Object, Object> nodeProperties) {
         updateAriaAttributes(nodeProperties);
+        // The tooltip text (see Tooltip.install()) is displayed by the browser through the title attribute
+        setElementAttribute("title", Strings.toString(nodeProperties.get("webfx-html-title")));
     }
 
     private void updateAriaAttributes(ObservableMap<Object, Object> nodeProperties) {

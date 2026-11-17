@@ -625,6 +625,21 @@ public abstract class Node implements INode, EventTarget, Styleable {
     }
 
     /**
+     * Used to specify that a pseudo-class of this Node has changed. WebFX maps an active pseudo-class "xxx" to the
+     * style class "pseudo-xxx" (see {@link javafx.css.PseudoClass}).
+     *
+     * @param pseudoClass the pseudo-class that has changed state
+     * @param active whether or not the state is active
+     */
+    public final void pseudoClassStateChanged(javafx.css.PseudoClass pseudoClass, boolean active) {
+        final String pseudoStyleClass = "pseudo-" + pseudoClass.getPseudoClassName();
+        if (!active)
+            styleClass.remove(pseudoStyleClass);
+        else if (!styleClass.contains(pseudoStyleClass))
+            styleClass.add(pseudoStyleClass);
+    }
+
+    /**
      * A string representation of the CSS style associated with this
      * specific {@code Node}. This is analogous to the "style" attribute of an
      * HTML element. Note that, like the HTML style attribute, this
@@ -1940,7 +1955,29 @@ public abstract class Node implements INode, EventTarget, Styleable {
     BaseBounds getTransformedBounds(BaseBounds bounds, BaseTransform tx) {
         if (!tx.isIdentity())
             throw new UnsupportedOperationException("Transform other then Identity not implemented in getGeomBounds()");
-        return getLocalBounds(bounds, tx);
+        bounds = getLocalBounds(bounds, tx);
+        // WebFX: the rotation and scale of the node (around its center, as in JavaFX) are considered, so that a parent
+        // such as a Group gets the right size for a rotated or scaled child (ex: a vertical label). Translations
+        // (layoutX/Y, translateX/Y) and the transforms list are still ignored here (unchanged WebFX behaviour).
+        double rotate = getRotate(), scaleX = getScaleX(), scaleY = getScaleY();
+        if (bounds.isEmpty() || rotate == 0 && scaleX == 1 && scaleY == 1)
+            return bounds;
+        double centerX = (bounds.getMinX() + bounds.getMaxX()) / 2, centerY = (bounds.getMinY() + bounds.getMaxY()) / 2;
+        double cos = Math.cos(Math.toRadians(rotate)), sin = Math.sin(Math.toRadians(rotate));
+        double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY;
+        double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY;
+        double[] xs = {bounds.getMinX(), bounds.getMaxX()}, ys = {bounds.getMinY(), bounds.getMaxY()};
+        for (double x : xs) {
+            for (double y : ys) {
+                double dx = (x - centerX) * scaleX, dy = (y - centerY) * scaleY;
+                double rx = centerX + dx * cos - dy * sin, ry = centerY + dx * sin + dy * cos;
+                minX = Math.min(minX, rx);
+                maxX = Math.max(maxX, rx);
+                minY = Math.min(minY, ry);
+                maxY = Math.max(maxY, ry);
+            }
+        }
+        return bounds.deriveWithNewBounds((float) minX, (float) minY, 0, (float) maxX, (float) maxY, 0);
 /*
         updateLocalToParentTransform();
         if (tx.isTranslateOrIdentity()) {

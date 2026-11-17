@@ -25,7 +25,7 @@ public abstract class Control extends Region implements Skinnable {
     public final ObjectProperty<Tooltip> tooltipProperty() {
         if (tooltip == null) {
             tooltip = new ObjectPropertyBase<>() {
-                /*private Tooltip old = null;
+                private Tooltip old = null;
                 @Override protected void invalidated() {
                     Tooltip t = get();
                     // install / uninstall
@@ -38,7 +38,7 @@ public abstract class Control extends Region implements Skinnable {
                         }
                         old = t;
                     }
-                }*/
+                }
 
                 @Override
                 public Object getBean() {

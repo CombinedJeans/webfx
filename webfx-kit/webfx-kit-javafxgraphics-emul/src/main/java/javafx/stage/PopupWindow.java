@@ -85,6 +85,14 @@ public abstract class PopupWindow extends Window {
     private WeakChangeListener<Boolean> weakOwnerNodeListener = new WeakChangeListener(changeListener);
 
     public PopupWindow() {
+        // WebFX: in the browser, the popup can get the keyboard focus (unlike JavaFX popups, whose key events come from
+        // the owner window, see PopupEventRedirector). So Escape is also handled when it's pressed inside the popup.
+        addEventHandler(KeyEvent.KEY_PRESSED, e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE && isHideOnEscape() && isShowing()) {
+                doAutoHide();
+                e.consume();
+            }
+        });
         final Pane popupRoot = new Pane();
         popupRoot.setBackground(Background.EMPTY);
         popupRoot.getStyleClass().add("popup");
@@ -213,13 +221,10 @@ public abstract class PopupWindow extends Window {
      * up positioned off the screen.
      * @defaultValue true
      */
-/*
+    // WebFX: the popup position is fixed (if needed) when it is shown (see updateWindow()), against the visible part of
+    // the page (Screen.getPrimary()).
     private BooleanProperty autoFix =
             new BooleanPropertyBase(true) {
-                @Override
-                protected void invalidated() {
-                    handleAutofixActivation(isShowing(), get());
-                }
 
                 @Override
                 public Object getBean() {
@@ -234,7 +239,6 @@ public abstract class PopupWindow extends Window {
     public final void setAutoFix(boolean value) { autoFix.set(value); }
     public final boolean isAutoFix() { return autoFix.get(); }
     public final BooleanProperty autoFixProperty() { return autoFix; }
-*/
 
     /**
      * Specifies whether Popups should auto hide. If a popup loses focus and
@@ -282,13 +286,11 @@ public abstract class PopupWindow extends Window {
      * is pressed while the popup has focus.
      * @defaultValue true
      */
-/*
     private BooleanProperty hideOnEscape =
             new SimpleBooleanProperty(this, "hideOnEscape", true);
     public final void setHideOnEscape(boolean value) { hideOnEscape.set(value); }
     public final boolean isHideOnEscape() { return hideOnEscape.get(); }
     public final BooleanProperty hideOnEscapeProperty() { return hideOnEscape; }
-*/
 
     /**
      * Specifies whether the event, which caused the Popup to hide, should be
@@ -704,14 +706,9 @@ public abstract class PopupWindow extends Window {
         double anchorScrMinX = newAnchorX - anchorDeltaX;
         double anchorScrMinY = newAnchorY - anchorDeltaY;
 
-/*
-        if (autofixActive) {
-            final Screen currentScreen =
-                    Utils.getScreenForPoint(newAnchorX, newAnchorY);
-            final Rectangle2D screenBounds =
-                    Utils.hasFullScreenStage(currentScreen)
-                            ? currentScreen.getBounds()
-                            : currentScreen.getVisualBounds();
+        if (isAutoFix() && anchorBounds.getWidth() > 0 && anchorBounds.getHeight() > 0) {
+            // WebFX: the screen is the visible part of the page
+            final javafx.geometry.Rectangle2D screenBounds = Screen.getPrimary().getVisualBounds();
 
             if (anchorXCoef <= 0.5) {
                 // left side of the popup is more important, try to keep it
@@ -742,7 +739,6 @@ public abstract class PopupWindow extends Window {
                                 - anchorBounds.getHeight());
             }
         }
-*/
 
         final double windowScrMinX =
                 anchorScrMinX - anchorBounds.getMinX()
@@ -981,12 +977,11 @@ public abstract class PopupWindow extends Window {
                 }
             }
 
-/*
+            // WebFX: Escape hides the popup (if hideOnEscape), before the owner window gets it (ex: a dialog closed by Escape)
             if ((event.getEventType() == KeyEvent.KEY_PRESSED)
-                    && ESCAPE_KEY_COMBINATION.match(event)) {
+                    && event.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
                 handleEscapeKeyPressedEvent(event);
             }
-*/
         }
 
         private void handleAutoHidingEvents(final Object eventSource,
@@ -1012,9 +1007,8 @@ public abstract class PopupWindow extends Window {
             }
         }
 
-/*
         private void handleEscapeKeyPressedEvent(final Event event) {
-            if (popupWindow.isHideOnEscape()) {
+            if (popupWindow.isHideOnEscape() && popupWindow.isShowing()) {
                 popupWindow.doAutoHide();
 
                 if (popupWindow.getConsumeAutoHidingEvents()) {
@@ -1022,7 +1016,6 @@ public abstract class PopupWindow extends Window {
                 }
             }
         }
-*/
 
         private void handleFocusUngrabEvent() {
 /*

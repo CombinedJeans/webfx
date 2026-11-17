@@ -140,6 +140,14 @@ class HeavyweightDialog extends FXDialog {
         }
         stage.centerOnScreen();
         stage.show();
+        // WebFX: the position above was computed with the dialog size before the dialog was in the DOM (texts not
+        // measured yet => usually too small, so the dialog appeared too low). Once displayed, the dialog is positioned
+        // again with its real size, unless the user already moved it.
+        dev.webfx.platform.uischeduler.UiScheduler.scheduleInAnimationFrame(() -> {
+            if (stage.isShowing() && getOwner() != null
+                && Double.compare(getX(), prefX) == 0 && Double.compare(getY(), prefY) == 0)
+                positionStage();
+        }, 1);
     }
 
     @Override public void showAndWait() {
@@ -283,6 +291,9 @@ class HeavyweightDialog extends FXDialog {
 
         x = owner.getX() + (ownerScene.getWidth() / 2.0) - (dialogWidth / 2.0);
         y = owner.getY() + titleBarHeight / 2.0 + (ownerScene.getHeight() / 2.0) - (dialogHeight / 2.0);
+        // WebFX: a dialog higher than its owner must not start above it (its title bar would be unreachable)
+        y = Math.max(y, owner.getY());
+        x = Math.max(x, owner.getX());
 
         prefX = x;
         prefY = y;

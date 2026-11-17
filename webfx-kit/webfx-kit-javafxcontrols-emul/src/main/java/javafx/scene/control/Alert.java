@@ -151,6 +151,12 @@ public class Alert extends Dialog<ButtonType> {
     private boolean hasCustomButtons = false;
     private boolean hasCustomTitle = false;
     private boolean hasCustomHeaderText = false;
+    // WebFX: whether the application has set its own graphic (otherwise the alert shows its standard symbol)
+    private boolean hasCustomGraphic = false;
+
+    private final InvalidationListener graphicListener = o -> {
+        if (!installingDefaults) hasCustomGraphic = true;
+    };
 
     private final InvalidationListener headerTextListener = o -> {
         if (!installingDefaults) hasCustomHeaderText = true;
@@ -267,26 +273,26 @@ public class Alert extends Dialog<ButtonType> {
                     break;
                 }
                 case INFORMATION: {
-                    newTitle = "Info Title"; // ControlResources.getString("Dialog.info.title");
-                    newHeader = "Info Header"; //ControlResources.getString("Dialog.info.header");
+                    newTitle = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.info.title");
+                    newHeader = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.info.header");
                     styleClass = "information";
                     break;
                 }
                 case WARNING: {
-                    newTitle = "Warning Title"; //ControlResources.getString("Dialog.warning.title");
-                    newHeader = "Warning Header"; //ControlResources.getString("Dialog.warning.header");
+                    newTitle = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.warning.title");
+                    newHeader = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.warning.header");
                     styleClass = "warning";
                     break;
                 }
                 case ERROR: {
-                    newTitle = "Error Title" ; //ControlResources.getString("Dialog.error.title");
-                    newHeader = "Error Header"; // ControlResources.getString("Dialog.error.header");
+                    newTitle = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.error.title");
+                    newHeader = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.error.header");
                     styleClass = "error";
                     break;
                 }
                 case CONFIRMATION: {
-                    newTitle = "Confirm Title"; //ControlResources.getString("Dialog.confirm.title");
-                    newHeader = "Confirm Header"; //ControlResources.getString("Dialog.confirm.header");
+                    newTitle = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.confirm.title");
+                    newHeader = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.confirm.header");
                     styleClass = "confirmation";
                     newButtons = new ButtonType[] { ButtonType.OK, ButtonType.CANCEL };
                     break;
@@ -297,6 +303,9 @@ public class Alert extends Dialog<ButtonType> {
             if (!hasCustomTitle) setTitle(newTitle);
             if (!hasCustomHeaderText) setHeaderText(newHeader);
             if (!hasCustomButtons) getButtonTypes().setAll(newButtons);
+            // WebFX: OpenJFX sets the standard symbol through CSS (-fx-graphic with an image), which WebFX doesn't
+            // support. The symbol is therefore created here (blue question mark, etc.).
+            if (!hasCustomGraphic) setGraphic(standardSymbol(getAlertType()));
 
             // update the style class based on the alert type. We use this to
             // specify the default graphic to use (i.e. via CSS).
@@ -353,12 +362,37 @@ public class Alert extends Dialog<ButtonType> {
      *
      **************************************************************************/
 
+    /**
+     * WebFX: the standard symbol of an alert type, drawn like the Modena images (circle with a sign), or null for
+     * {@link AlertType#NONE}.
+     */
+    private static javafx.scene.Node standardSymbol(AlertType type) {
+        String sign, color;
+        switch (type) {
+            case INFORMATION: sign = "i"; color = "#2f6fbf"; break;
+            case WARNING: sign = "!"; color = "#e8a317"; break;
+            case ERROR: sign = "×"; color = "#d13a3a"; break;
+            case CONFIRMATION: sign = "?"; color = "#2f6fbf"; break;
+            default: return null;
+        }
+        javafx.scene.shape.Circle circle = new javafx.scene.shape.Circle(18, javafx.scene.paint.Color.web(color));
+        circle.setStroke(javafx.scene.paint.Color.WHITE);
+        circle.setStrokeWidth(2);
+        javafx.scene.text.Text text = new javafx.scene.text.Text(sign);
+        text.setFill(javafx.scene.paint.Color.WHITE);
+        text.setFont(javafx.scene.text.Font.font("System", javafx.scene.text.FontWeight.BOLD, 22));
+        javafx.scene.layout.StackPane symbol = new javafx.scene.layout.StackPane(circle, text);
+        symbol.getStyleClass().add("alert-symbol");
+        return symbol;
+    }
+
     private void updateListeners() {
         DialogPane oldPane = dialogPaneRef.get();
 
         if (oldPane != null) {
             oldPane.headerTextProperty().removeListener(headerTextListener);
             oldPane.getButtonTypes().removeListener(buttonsListener);
+            oldPane.graphicProperty().removeListener(graphicListener);
         }
 
         // listen to changes to properties that would be changed by alertType being
@@ -370,6 +404,7 @@ public class Alert extends Dialog<ButtonType> {
         if (newPane != null) {
             newPane.headerTextProperty().addListener(headerTextListener);
             newPane.getButtonTypes().addListener(buttonsListener);
+            newPane.graphicProperty().addListener(graphicListener);
         }
 
         dialogPaneRef = new WeakReference<>(newPane);

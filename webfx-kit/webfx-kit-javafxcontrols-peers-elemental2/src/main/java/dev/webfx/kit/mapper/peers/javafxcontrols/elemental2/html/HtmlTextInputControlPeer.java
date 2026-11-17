@@ -196,16 +196,18 @@ public abstract class HtmlTextInputControlPeer
     @Override
     public void updatePromptText(String promptText) {
         String placeholder = Strings.toSafeString(promptText);
-        // In JavaFX, the prompt text is not displayed when the text input has the focus (as opposed to HTML).
-        // So we reproduce this behavior here, unless the application code requests not to do so (using
-        // webfx-keepHtmlPlaceholder property).
-        if (isJavaFxFocusOwner() && Booleans.isNotTrue(getNode().getProperties().get("webfx-keepHtmlPlaceholder")))
-            placeholder = ""; // Clearing the placeholder on focused nodes.
+        // In JavaFX (Modena), the prompt text is not displayed when the text input has the focus (as opposed to HTML).
+        // This is reproduced in CSS (input:focus::placeholder, see webfx-kit-javafxcontrols-web@main.css), so that
+        // applications whose stylesheet overrides it can show it with --fx-focused-prompt-text-fill. The
+        // webfx-keepHtmlPlaceholder property still keeps it visible for a single node.
         Element focusableElement = getHtmlFocusableElement();
         if (focusableElement instanceof HTMLInputElement)
             ((HTMLInputElement) focusableElement).placeholder = placeholder;
         else if (focusableElement instanceof HTMLTextAreaElement)
             setElementAttribute(focusableElement, "placeholder", placeholder);
+        if (focusableElement != null)
+            setElementAttribute(focusableElement, "data-keep-placeholder",
+                Booleans.isTrue(getNode().getProperties().get("webfx-keepHtmlPlaceholder")) ? "true" : null);
     }
 
     @Override

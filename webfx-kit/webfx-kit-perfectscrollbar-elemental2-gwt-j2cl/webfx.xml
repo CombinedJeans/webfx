@@ -23,4 +23,16 @@
         </body>
     </html>
 
+    <!-- TableView uses a ScrollPane internally (in its skin). The WebFX CLI doesn't detect this usage, because it ignores
+         the usages of javafx classes inside the webfx-kit modules, so the library must also be included for TableView.
+         Note: if the application uses both ScrollPane and TableView, the library is just included twice (harmless). -->
+    <html if-uses-java-class="javafx.scene.control.TableView">
+        <head>
+            <link rel="stylesheet" type="text/css" href="./dev/webfx/kit/perfectscrollbar/perfect-scrollbar.css"/>
+        </head>
+        <body>
+            <script type="text/javascript" charset="utf-8" src="./dev/webfx/kit/perfectscrollbar/perfect-scrollbar.min.js"/>
+        </body>
+    </html>
+
 </project>

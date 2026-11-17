@@ -52,7 +52,10 @@ public class Group extends Parent implements
     protected double impl_prefWidth(double height) {
         if (isAutoSizeChildren())
             layout();
-        return super.impl_prefWidth(height);
+        // WebFX: as in JavaFX, the size of the layout bounds (children bounds including their rotation & scale, ex:
+        // a rotated label), and not the sum of the preferred sizes of the children.
+        final double result = getLayoutBounds().getWidth();
+        return Double.isNaN(result) || result < 0 ? 0 : result;
     }
 
     /**
@@ -70,7 +73,10 @@ public class Group extends Parent implements
     protected double impl_prefHeight(double width) {
         if (isAutoSizeChildren())
             layout();
-        return super.impl_prefHeight(width);
+        // WebFX: as in JavaFX, the size of the layout bounds (children bounds including their rotation & scale, ex:
+        // a rotated label), and not the sum of the preferred sizes of the children.
+        final double result = getLayoutBounds().getHeight();
+        return Double.isNaN(result) || result < 0 ? 0 : result;
     }
 
 

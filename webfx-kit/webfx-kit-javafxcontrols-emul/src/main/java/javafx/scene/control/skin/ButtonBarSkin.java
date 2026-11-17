@@ -108,6 +108,16 @@ public class ButtonBarSkin extends SkinBase<ButtonBar> {
         //ListenerHelper lh = ListenerHelper.get(this);
 
         updateButtonListeners(control.getButtons(), true);
+        // WebFX: the buttons can be added after the skin creation (ex: DialogPane button types), so we listen to them
+        control.getButtons().addListener((javafx.collections.ListChangeListener<Node>) c -> {
+            while (c.next()) {
+                updateButtonListeners(c.getRemoved(), false);
+                updateButtonListeners(c.getAddedSubList(), true);
+            }
+            layoutButtons();
+        });
+        control.buttonOrderProperty().addListener(o -> layoutButtons());
+        control.buttonMinWidthProperty().addListener(o -> resizeButtons());
         /*lh.addListChangeListener(control.getButtons(), (c) -> {
             while (c.next()) {
                 updateButtonListeners(c.getRemoved(), false);
@@ -127,6 +137,23 @@ public class ButtonBarSkin extends SkinBase<ButtonBar> {
      * Implementation
      *
      **************************************************************************/
+
+    // WebFX: the size includes the insets (padding) of the ButtonBar (ex: the padding set by DialogPane), which the
+    // default SkinBase computation only partially considers.
+    @Override
+    protected double computePrefWidth(double height, double topInset, double rightInset, double bottomInset, double leftInset) {
+        return leftInset + layout.prefWidth(height) + rightInset;
+    }
+
+    @Override
+    protected double computePrefHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+        return topInset + layout.prefHeight(width < 0 ? width : width - leftInset - rightInset) + bottomInset;
+    }
+
+    @Override
+    protected double computeMinHeight(double width, double topInset, double rightInset, double bottomInset, double leftInset) {
+        return computePrefHeight(width, topInset, rightInset, bottomInset, leftInset);
+    }
 
     @Override
     public void dispose() {

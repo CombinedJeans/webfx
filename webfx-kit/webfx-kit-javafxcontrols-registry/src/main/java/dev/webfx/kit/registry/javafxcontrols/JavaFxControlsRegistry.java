@@ -28,6 +28,8 @@ public class JavaFxControlsRegistry {
 
     public static native void registerChoiceBox();
 
+    public static native void registerComboBox();
+
     public static native void registerDatePicker();
 
     public static native void registerScrollPane();

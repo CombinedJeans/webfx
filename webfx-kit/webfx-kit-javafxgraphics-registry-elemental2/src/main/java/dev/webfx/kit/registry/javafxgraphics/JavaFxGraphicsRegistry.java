@@ -66,6 +66,14 @@ public class JavaFxGraphicsRegistry {
         registerNodePeerFactory(Line.class, HtmlLinePeer::new);
     }
 
+    public static void registerPolygon() {
+        registerNodePeerFactory(Polygon.class, () -> new HtmlPolyPeer<>(true));
+    }
+
+    public static void registerPolyline() {
+        registerNodePeerFactory(Polyline.class, () -> new HtmlPolyPeer<>(false));
+    }
+
     public static void registerSubtractShape() {
         registerNodePeerFactory(SubtractShape.class, HtmlSubtractShapePeer::new);
     }

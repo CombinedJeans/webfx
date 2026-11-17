@@ -290,6 +290,13 @@ public class Dialog<R> implements EventTarget {
      * @throws IllegalStateException if this method is called during
      *     animation or layout processing.
      */
+    /**
+     * WebFX implementation note: the browser can't block the caller until the dialog is closed (there is no nested
+     * event loop in JavaScript). So this method just shows the dialog and returns immediately, with the result known
+     * at that time (usually {@link Optional#empty()}). The application code should rather use {@link #show()} and
+     * react to the closing of the dialog (ex: {@code setOnHidden(e -> handle(getResult()))}), which works in both
+     * JavaFX and WebFX.
+     */
     public final Optional<R> showAndWait() {
 /*
         Toolkit.getToolkit().checkFxUserThread();
