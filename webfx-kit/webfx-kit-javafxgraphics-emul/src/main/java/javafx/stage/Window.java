@@ -348,6 +348,20 @@ public class Window implements EventTarget,
                     //impl_peer.setOpacity((float)getOpacity());
 
                     impl_peer.setVisible(true);
+                    // WebFX: the size of a secondary stage computed above is usually wrong, because the scene nodes
+                    // were not yet in the DOM (=> texts couldn't be measured). So we compute it again once the stage
+                    // is displayed, and center the stage again (unless the application positioned it).
+                    if (Window.this instanceof Stage && Window.this != WebFxKitLauncher.getPrimaryStage() && getScene() != null
+                        && (!widthExplicit || !heightExplicit)) {
+                        UiScheduler.scheduleInAnimationFrame(() -> {
+                            if (isShowing() && getScene() != null) {
+                                getScene().impl_preferredSize();
+                                adjustSize(true);
+                                if (!xExplicit && !yExplicit)
+                                    centerOnScreen();
+                            }
+                        }, 1);
+                    }
                     fireEvent(new WindowEvent(Window.this, WindowEvent.WINDOW_SHOWN));
                 } else {
                     impl_peer.setVisible(false);
@@ -606,11 +620,14 @@ public class Window implements EventTarget,
                     && !Double.isNaN(window.getY())
                     && !Double.isNaN(window.getWidth())
                     && !Double.isNaN(window.getHeight())) {
-                return Screen.from(
+                // WebFX: the screen on which the window is (and not a screen of the window size, which made
+                // centerOnScreen() center the window inside its own bounds, i.e. not move it)
+                javafx.collections.ObservableList<Screen> screens = Screen.getScreensForRectangle(
                         new Rectangle2D(window.getX(),
                                 window.getY(),
-                                window.getWidth(),
-                                window.getHeight()));
+                                Math.max(1, window.getWidth()),
+                                Math.max(1, window.getHeight())));
+                return screens.isEmpty() ? Screen.getPrimary() : screens.get(0);
             }
 
             window = window.getWindowOwner();

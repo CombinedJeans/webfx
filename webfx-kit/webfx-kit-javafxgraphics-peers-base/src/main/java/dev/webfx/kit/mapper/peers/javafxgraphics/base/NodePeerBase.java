@@ -61,6 +61,24 @@ public class NodePeerBase
             , node.onMouseDraggedProperty()
             , node.styleProperty()
         );
+        // The pivot of the rotation and scale is the center of the node. So for a rotated or scaled node, the
+        // transforms must also be updated when the node is resized (ex: a rotated label once its text is measured).
+        FXProperties.runOnPropertiesChange(p -> installPivotListenerIfNeeded(sceneRequester),
+            node.rotateProperty(), node.scaleXProperty(), node.scaleYProperty());
+        installPivotListenerIfNeeded(sceneRequester);
+    }
+
+    private javafx.beans.value.ChangeListener<javafx.geometry.Bounds> pivotListener;
+
+    private void installPivotListenerIfNeeded(SceneRequester sceneRequester) {
+        N n = node;
+        if (pivotListener == null && n != null && (n.getRotate() != 0 || n.getScaleX() != 1 || n.getScaleY() != 1)) {
+            pivotListener = (observable, oldBounds, newBounds) -> {
+                if (node != null)
+                    requestUpdateProperty(sceneRequester, node.rotateProperty());
+            };
+            n.layoutBoundsProperty().addListener(pivotListener);
+        }
     }
 
     @Override

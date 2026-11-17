@@ -62,6 +62,10 @@ public class JavaFxControlsRegistry {
         registerNodePeerFactory(ChoiceBox.class, HtmlChoiceBoxPeer::new);
     }
 
+    public static void registerComboBox() {
+        registerNodePeerFactory(ComboBox.class, HtmlComboBoxPeer::new);
+    }
+
     public static void registerDatePicker() {
         registerNodePeerFactory(DatePicker.class, HtmlDatePickerPeer::new);
     }

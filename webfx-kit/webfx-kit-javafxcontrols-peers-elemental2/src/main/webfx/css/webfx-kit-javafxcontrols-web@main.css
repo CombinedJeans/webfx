@@ -34,6 +34,16 @@
     color: var(--fx-placholder-color);
 }
 
+/* JavaFX (Modena: .text-input:focused { -fx-prompt-text-fill: transparent; }) doesn't display the prompt text in
+   focused text inputs. Applications whose stylesheet overrides this can set --fx-focused-prompt-text-fill. */
+input:focus::placeholder, textarea:focus::placeholder {
+    color: var(--fx-focused-prompt-text-fill, transparent);
+}
+
+[data-keep-placeholder="true"]:focus::placeholder {
+    color: var(--fx-placholder-color);
+}
+
 /* Without this rule, the context menu is wrongly shifted up by the browser the first time it is displayed */
 fx-scene > * {
     overflow: hidden;
@@ -103,6 +113,34 @@ textarea {
 
 textarea:focus {
     --fx-border-color: var(--fx-focus-color);
+}
+
+/* ComboBox - mapped to a select element, which is styled directly (as for textarea, the border overlay doesn't work on
+   it). App CSS can override the --fx-combo-box-* variables. */
+select.combo-box {
+    font: inherit;
+    color: var(--fx-text-fill);
+    padding: 4px 6px;
+    box-sizing: border-box;
+    outline: none;
+    cursor: pointer;
+    background-color: var(--fx-combo-box-background-color, white);
+    border-style: solid;
+    border-width: var(--fx-combo-box-border-width, 1px);
+    border-color: var(--fx-combo-box-border-color, #c0c0c0);
+    border-radius: var(--fx-combo-box-border-radius, 5px);
+}
+
+select.combo-box:focus {
+    border-color: var(--fx-focus-color);
+}
+
+select.combo-box[fx-no-selection] { /* No selected item => the select displays the prompt text */
+    color: var(--fx-prompt-text-fill, #909090);
+}
+
+select.combo-box option {
+    color: var(--fx-text-fill);
 }
 
 fx-titledpane textarea {
@@ -196,4 +234,158 @@ fx-tabheaderskin {
     --fx-padding-right: var(--fx-tabheader-padding-right);
     --fx-padding-bottom: var(--fx-tabheader-padding-bottom);
     --fx-padding-left: var(--fx-tabheader-padding-left);
+}
+
+/***** TableView *****/
+
+:root {
+    --fx-table-border-color: #c8c8c8;
+    --fx-table-header-background-color: #f0f0f0;
+    --fx-table-header-background-color-hover: #e4e4e4;
+    --fx-table-row-background-color: white;
+    --fx-table-row-background-color-odd: #f7f7f7;
+    --fx-table-row-background-color-hover: #e3f2f9;
+    --fx-table-row-background-color-selected: var(--fx-theme-color);
+    --fx-table-row-border-color: #ececec;
+    --fx-table-row-text-fill-selected: white;
+}
+
+.table-view {
+    --fx-background-color: white;
+    --fx-border-style: solid;
+    --fx-border-color: var(--fx-table-border-color);
+    --fx-border-width: 1px;
+}
+
+/* The header area (clips the column headers when the table is scrolled horizontally) */
+.table-view .column-header-background {
+    overflow: hidden;
+    --fx-background-color: var(--fx-table-header-background-color);
+    --fx-border-style: solid;
+    --fx-border-color: var(--fx-table-border-color);
+    --fx-border-width: 0 0 1px 0;
+}
+
+.table-view .column-header {
+    overflow: hidden;
+    --fx-border-style: solid;
+    --fx-border-color: var(--fx-table-border-color);
+    --fx-border-width: 0 1px 0 0;
+    --text-user-select: none;
+}
+
+.table-view .column-header:hover {
+    --fx-background-color: var(--fx-table-header-background-color-hover);
+}
+
+.table-view .column-header .sort-arrow {
+    --fx-text-fill: #666;
+}
+
+.table-view .column-resize-grip {
+    cursor: col-resize;
+}
+
+.table-view .table-row-cell {
+    --fx-background-color: var(--fx-table-row-background-color);
+    --fx-border-style: solid;
+    --fx-border-color: var(--fx-table-row-border-color);
+    --fx-border-width: 0 0 1px 0;
+    --text-user-select: none;
+}
+
+.table-view .table-row-cell.pseudo-odd {
+    --fx-background-color: var(--fx-table-row-background-color-odd);
+}
+
+.table-view .table-row-cell:hover {
+    --fx-background-color: var(--fx-table-row-background-color-hover);
+}
+
+.table-view .table-row-cell.pseudo-selected {
+    --fx-background-color: var(--fx-table-row-background-color-selected);
+    --fx-text-fill: var(--fx-table-row-text-fill-selected);
+}
+
+.table-view .table-cell {
+    overflow: hidden;
+}
+
+.table-view .placeholder {
+    --fx-text-fill: #888;
+}
+
+/* Dialogs (the paddings are set in Java by DialogPane) */
+.dialog-pane {
+    --fx-background-color: white;
+}
+
+.dialog-pane > .header-panel {
+    --fx-background-color: #f4f4f4;
+    --fx-border-style: solid;
+    --fx-border-color: #dcdcdc;
+    --fx-border-width: 0 0 1px 0;
+}
+
+.dialog-pane > .header-panel .label {
+    font-weight: 600;
+}
+
+/***** DatePicker (calendar button and popup - see DatePickerSkin) *****/
+
+fx-datepicker .arrow-button {
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+fx-datepicker .arrow {
+    --fx-background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23666' stroke-width='1.4'%3E%3Crect x='1.5' y='2.5' width='13' height='12' rx='1.5'/%3E%3Cpath d='M1.5 6.5h13M5 1v3M11 1v3'/%3E%3C/svg%3E");
+    --fx-background-repeat: no-repeat;
+    --fx-background-position: center;
+    --fx-background-size: contain;
+}
+
+fx-datepicker .arrow-button:hover .arrow {
+    opacity: 0.7;
+}
+
+.date-picker-popup {
+    --fx-background-color: white;
+    --fx-border-style: solid;
+    --fx-border-color: #c0c0c0;
+    --fx-border-width: 1px;
+    --fx-border-radius: 6px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+.date-picker-popup .month-year {
+    font-weight: 600;
+}
+
+.date-picker-popup .day-name-cell {
+    --fx-text-fill: #777;
+    font-size: 0.85em;
+}
+
+.date-picker-popup .day-cell {
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.date-picker-popup .day-cell:hover {
+    background-color: #e3f2f9;
+}
+
+.date-picker-popup .day-cell.previous-month,
+.date-picker-popup .day-cell.next-month {
+    --fx-text-fill: #aaa;
+}
+
+.date-picker-popup .day-cell.pseudo-today {
+    box-shadow: inset 0 0 0 1px var(--fx-theme-color);
+}
+
+.date-picker-popup .day-cell.pseudo-selected {
+    background-color: var(--fx-theme-color);
+    --fx-text-fill: white;
 }

@@ -68,8 +68,8 @@ public class TextInputDialog extends Dialog<String> {
 
         dialogPane.contentTextProperty().addListener(o -> updateGrid());
 
-        setTitle("Title" /*ControlResources.getString("Dialog.confirm.title")*/);
-        dialogPane.setHeaderText("Header"/*ControlResources.getString("Dialog.confirm.header")*/);
+        setTitle(com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.confirm.title"));
+        dialogPane.setHeaderText(com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.confirm.header"));
         dialogPane.getStyleClass().add("text-input-dialog");
         dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 

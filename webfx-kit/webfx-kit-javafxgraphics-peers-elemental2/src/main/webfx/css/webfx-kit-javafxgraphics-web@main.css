@@ -222,3 +222,81 @@ fx-svgpath svg path:not([stroke-linecap]) {
 fx-svgpath svg path:not([stroke-linejoin]) {
     stroke-linejoin: var(--fx-svg-path-stroke-linejoin, var(--fx-stroke-linejoin));
 }
+
+/* Polygon & Polyline: applying the JavaFX defaults (Polygon: black fill & no stroke - Polyline: no fill & black stroke)
+   unless the application set them in Java (=> SVG attributes) or in CSS (--fx-fill, --fx-stroke, --fx-stroke-width) */
+fx-polygon svg polygon:not([fill]) {
+    fill: var(--fx-fill, black);
+}
+
+fx-polygon svg polygon:not([stroke]) {
+    stroke: var(--fx-stroke, none);
+}
+
+fx-polyline svg polyline:not([fill]) {
+    fill: var(--fx-fill, none);
+}
+
+fx-polyline svg polyline:not([stroke]) {
+    stroke: var(--fx-stroke, black);
+}
+
+fx-polygon svg polygon:not([stroke-width]), fx-polyline svg polyline:not([stroke-width]) {
+    stroke-width: var(--fx-stroke-width, 1px);
+}
+
+/* Secondary stages (dialogs, additional windows) - see Elemental2SecondaryStagePeer. The title bar height and the
+   border width are set by the peer (as they are needed to compute the window size). */
+:root {
+    --fx-stage-border-color: #9a9a9a;
+    --fx-stage-background-color: white;
+    --fx-stage-titlebar-background-color: #f0f0f0;
+    --fx-stage-titlebar-text-fill: #222;
+    --fx-stage-modal-background-color: rgba(0, 0, 0, 0.3);
+}
+
+fx-stage {
+    border-color: var(--fx-stage-border-color);
+    border-radius: 6px;
+    background-color: var(--fx-stage-background-color);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+}
+
+fx-stage[undecorated] {
+    border-radius: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+fx-stage-titlebar {
+    padding: 0 4px 0 10px;
+    background-color: var(--fx-stage-titlebar-background-color);
+    border-bottom: 1px solid var(--fx-stage-border-color);
+    color: var(--fx-stage-titlebar-text-fill);
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+}
+
+fx-stage-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 22px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: default;
+}
+
+fx-stage-close:hover {
+    background-color: #e81123;
+    color: white;
+}
+
+fx-stage-modal-background {
+    background-color: var(--fx-stage-modal-background-color);
+}

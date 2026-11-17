@@ -71,6 +71,8 @@ public class Elemental2WindowPeer extends WindowPeerBase {
                     firstShow = false;
                 } else
                     document.body.appendChild(windowElement);
+                // In front of all the other windows (including the secondary stages, ex: a popup shown from a dialog)
+                windowStyle.set("zIndex", String.valueOf(Elemental2SecondaryStagePeer.nextZIndex()));
             } else {
                 document.body.removeChild(windowElement);
             }

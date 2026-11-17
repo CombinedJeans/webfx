@@ -61,11 +61,13 @@ public class WindowPeerListener implements TKStageListener {
 
     @Override
     public void closing() {
-/*
-        Event.fireEvent(window,
-                new WindowEvent(window,
-                        WindowEvent.WINDOW_CLOSE_REQUEST));
-*/
+        // WebFX: called by the secondary stage peer when the user clicks the close button of the window. As in JavaFX,
+        // a close request event is fired, and the window is hidden unless the event has been consumed.
+        Event finalEvent = com.sun.javafx.event.EventUtil.fireEvent(window,
+                new javafx.stage.WindowEvent(window,
+                        javafx.stage.WindowEvent.WINDOW_CLOSE_REQUEST));
+        if (finalEvent != null && window.isShowing())
+            window.hide();
     }
 
     @Override

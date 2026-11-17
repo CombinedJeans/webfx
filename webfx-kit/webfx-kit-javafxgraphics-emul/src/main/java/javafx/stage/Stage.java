@@ -350,7 +350,11 @@ public class Stage extends Window implements HasTitleProperty {
      * @since JavaFX 2.2
      */
     public void showAndWait() {
-
+        // WebFX: the browser can't block the caller until the stage is closed (there is no nested event loop in
+        // JavaScript). So this method just shows the stage and returns immediately. The application code must not
+        // rely on the stage being closed when this method returns: it should use show() and react to the closing of
+        // the stage instead (ex: setOnHidden()).
+        show();
 /*
         //Toolkit.getToolkit().checkFxUserThread();
 

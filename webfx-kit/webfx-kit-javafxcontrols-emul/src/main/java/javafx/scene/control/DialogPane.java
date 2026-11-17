@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -159,15 +160,23 @@ public class DialogPane extends Pane {
     /**
      * Creates a new DialogPane instance with a style class of 'dialog-pane'.
      */
+    // WebFX: the paddings of the Modena theme (-fx-padding: 0.833em, i.e. about 10px) are set in Java, because the
+    // layout is computed in Java (the CSS paddings wouldn't be considered).
+    private static final Insets HEADER_PADDING = new Insets(10, 12, 10, 12);
+    private static final Insets CONTENT_PADDING = new Insets(12, 12, 4, 12);
+    private static final Insets BUTTON_BAR_PADDING = new Insets(10, 12, 10, 12);
+
     public DialogPane() {
         getStyleClass().add("dialog-pane");
 
         headerTextPanel = new GridPane();
+        headerTextPanel.setPadding(HEADER_PADDING);
         getChildren().add(headerTextPanel);
 
         graphicContainer = new StackPane();
 
         contentLabel = createContentLabel("");
+        contentLabel.setPadding(CONTENT_PADDING);
         getChildren().add(contentLabel);
 
         buttonBar = createButtonBar();
@@ -706,6 +715,7 @@ public class DialogPane extends Pane {
     protected Node createButtonBar() {
         ButtonBar buttonBar = new ButtonBar();
         buttonBar.setMaxWidth(Double.MAX_VALUE);
+        buttonBar.setPadding(BUTTON_BAR_PADDING);
 
         updateButtons(buttonBar);
         getButtonTypes().addListener((ListChangeListener<? super ButtonType>) c -> updateButtons(buttonBar));
@@ -756,8 +766,8 @@ public class DialogPane extends Pane {
      */
     protected Node createDetailsButton() {
         final Hyperlink detailsButton = new Hyperlink();
-        final String moreText = "More"; // ControlResources.getString("Dialog.detail.button.more"); //$NON-NLS-1$
-        final String lessText = "Less"; // ControlResources.getString("Dialog.detail.button.less"); //$NON-NLS-1$
+        final String moreText = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.detail.button.more"); //$NON-NLS-1$
+        final String lessText = com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.detail.button.less"); //$NON-NLS-1$
 
         InvalidationListener expandedListener = o -> {
             final boolean isExpanded = isExpanded();
@@ -1099,6 +1109,9 @@ public class DialogPane extends Pane {
             if (! content.getStyleClass().contains("content")) {
                 content.getStyleClass().add("content");
             }
+            // WebFX: Modena padding of the content (see HEADER_PADDING), unless the application set one
+            if (content instanceof Region && Insets.EMPTY.equals(((Region) content).getPadding()))
+                ((Region) content).setPadding(CONTENT_PADDING);
 
             contentLabel.setVisible(false);
             contentLabel.setManaged(false);

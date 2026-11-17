@@ -36,6 +36,15 @@ public interface WebFxKitLauncherProvider {
         return Screen.getPrimary();
     }
 
+    /**
+     * Returns the language of the user (ISO 639 code, ex: "de" or "en"), which can be used by controls to localize
+     * their texts (ex: the DatePicker calendar). By default, the language of the default Java locale.
+     */
+    default String getUserLanguage() {
+        java.util.Locale locale = java.util.Locale.getDefault();
+        return locale == null ? "en" : locale.getLanguage();
+    }
+
     default Clipboard getSystemClipboard() {
         return Clipboard.getSystemClipboard();
     }

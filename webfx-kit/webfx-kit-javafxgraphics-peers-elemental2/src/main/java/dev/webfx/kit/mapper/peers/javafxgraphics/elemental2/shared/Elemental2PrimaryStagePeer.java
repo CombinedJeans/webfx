@@ -31,6 +31,11 @@ public final class Elemental2PrimaryStagePeer extends StagePeerBase {
     // bookmark bar, etc...
     static double windowScreenYCorrection;
 
+    /** The correction to apply on HTML window.screenY (see windowScreenYCorrection). */
+    public static double getWindowScreenYCorrection() {
+        return windowScreenYCorrection;
+    }
+
     private Scheduled windowPositionWatcher;
 
     public Elemental2PrimaryStagePeer(Stage stage) {

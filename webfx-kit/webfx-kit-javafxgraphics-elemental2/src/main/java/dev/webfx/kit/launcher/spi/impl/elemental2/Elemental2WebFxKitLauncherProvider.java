@@ -164,8 +164,24 @@ public final class Elemental2WebFxKitLauncherProvider extends WebFxKitLauncherPr
 
     @Override
     public Screen getPrimaryScreen() {
-        elemental2.dom.Screen screen = DomGlobal.screen;
-        return Screen.from(toRectangle2D(screen.width, screen.height), toRectangle2D(screen.availWidth, screen.availHeight), DomGlobal.window.devicePixelRatio, DomGlobal.window.devicePixelRatio);
+        // The screen coordinates in WebFX are the physical screen coordinates (as in the mouse events), but all the
+        // windows are displayed inside the browser page. So the screen bounds returned here are the bounds of the visible
+        // part of the page, expressed in screen coordinates. This way, the windows are centered in the page, and the
+        // popups are kept inside the page (autoFix), and not inside the physical screen.
+        double x = DomGlobal.window.screenX;
+        double y = DomGlobal.window.screenY + dev.webfx.kit.mapper.peers.javafxgraphics.elemental2.shared.Elemental2PrimaryStagePeer.getWindowScreenYCorrection();
+        Rectangle2D page = new Rectangle2D(x, y, DomGlobal.window.innerWidth, DomGlobal.window.innerHeight);
+        return Screen.from(page, page, DomGlobal.window.devicePixelRatio, DomGlobal.window.devicePixelRatio);
+    }
+
+    @Override
+    public String getUserLanguage() {
+        // The language of the browser (ex: "de-DE" => "de"), as the default Java locale doesn't reflect it in the browser
+        String language = DomGlobal.navigator.language;
+        if (language == null || language.isEmpty())
+            return "en";
+        int dash = language.indexOf('-');
+        return (dash > 0 ? language.substring(0, dash) : language).toLowerCase();
     }
 
     private static Rectangle2D toRectangle2D(double width, double height) {

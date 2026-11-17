@@ -20,63 +20,63 @@ public final class ButtonType {
      * {@link ButtonData} of {@link ButtonData#APPLY}.
      */
     public static final ButtonType APPLY = new ButtonType(
-            /*ControlResources.getString("Dialog.apply.button")*/ "Apply", ButtonData.APPLY);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.apply.button"), ButtonData.APPLY);
 
     /**
      * A pre-defined {@link ButtonType} that displays "OK" and has a
      * {@link ButtonData} of {@link ButtonData#OK_DONE}.
      */
     public static final ButtonType OK = new ButtonType(
-            /*ControlResources.getString("Dialog.ok.button")*/ "Ok", ButtonData.OK_DONE);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.ok.button"), ButtonData.OK_DONE);
 
     /**
      * A pre-defined {@link ButtonType} that displays "Cancel" and has a
      * {@link ButtonData} of {@link ButtonData#CANCEL_CLOSE}.
      */
     public static final ButtonType CANCEL = new ButtonType(
-            /*ControlResources.getString("Dialog.cancel.button")*/ "Cancel", ButtonData.CANCEL_CLOSE);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.cancel.button"), ButtonData.CANCEL_CLOSE);
 
     /**
      * A pre-defined {@link ButtonType} that displays "Close" and has a
      * {@link ButtonData} of {@link ButtonData#CANCEL_CLOSE}.
      */
     public static final ButtonType CLOSE = new ButtonType(
-            /*ControlResources.getString("Dialog.close.button")*/ "Close", ButtonData.CANCEL_CLOSE);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.close.button"), ButtonData.CANCEL_CLOSE);
 
     /**
      * A pre-defined {@link ButtonType} that displays "Yes" and has a
      * {@link ButtonData} of {@link ButtonData#YES}.
      */
     public static final ButtonType YES = new ButtonType(
-            /*ControlResources.getString("Dialog.yes.button")*/ "Yes", ButtonData.YES);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.yes.button"), ButtonData.YES);
 
     /**
      * A pre-defined {@link ButtonType} that displays "No" and has a
      * {@link ButtonData} of {@link ButtonData#NO}.
      */
     public static final ButtonType NO = new ButtonType(
-            /*ControlResources.getString("Dialog.no.button")*/ "No", ButtonData.NO);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.no.button"), ButtonData.NO);
 
     /**
      * A pre-defined {@link ButtonType} that displays "Finish" and has a
      * {@link ButtonData} of {@link ButtonData#FINISH}.
      */
     public static final ButtonType FINISH = new ButtonType(
-            /*ControlResources.getString("Dialog.finish.button")*/ "Finish", ButtonData.FINISH);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.finish.button"), ButtonData.FINISH);
 
     /**
      * A pre-defined {@link ButtonType} that displays "Next" and has a
      * {@link ButtonData} of {@link ButtonData#NEXT_FORWARD}.
      */
     public static final ButtonType NEXT = new ButtonType(
-            /*ControlResources.getString("Dialog.next.button")*/"Next", ButtonData.NEXT_FORWARD);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.next.button"), ButtonData.NEXT_FORWARD);
 
     /**
      * A pre-defined {@link ButtonType} that displays "Previous" and has a
      * {@link ButtonData} of {@link ButtonData#BACK_PREVIOUS}.
      */
     public static final ButtonType PREVIOUS = new ButtonType(
-            /*ControlResources.getString("Dialog.previous.button")*/ "Previous", ButtonData.BACK_PREVIOUS);
+            com.sun.javafx.scene.control.skin.resources.ControlResources.getString("Dialog.previous.button"), ButtonData.BACK_PREVIOUS);
 
     private final String text;
     private final ButtonData buttonData;
