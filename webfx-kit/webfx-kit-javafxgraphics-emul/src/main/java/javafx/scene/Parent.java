@@ -289,6 +289,17 @@ public class Parent extends Node {
         }
     }
 
+    /**
+     * WebFX: also clears the cached min & pref sizes of this parent (in addition to the cache of the peer). Otherwise,
+     * a size computed while the HTML elements were not yet measurable (ex: elements of a secondary stage not yet in
+     * the DOM => measured size 0) would remain, even after a forced layout (see NodeHelper.webfx_forceLayoutOnThisNodeAndChildren()).
+     */
+    @Override
+    public void clearCache() {
+        super.clearCache();
+        clearSizeCache();
+    }
+
     void clearSizeCache() {
         if (!sizeCacheClear) {
             prefWidthCache = -1;
