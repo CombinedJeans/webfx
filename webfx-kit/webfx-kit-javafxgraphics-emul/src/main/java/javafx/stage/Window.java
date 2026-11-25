@@ -1,5 +1,6 @@
 package javafx.stage;
 
+import com.sun.javafx.scene.NodeHelper;
 import com.sun.javafx.stage.WindowEventDispatcher;
 import com.sun.javafx.stage.WindowHelper;
 import com.sun.javafx.stage.WindowPeerListener;
@@ -355,6 +356,9 @@ public class Window implements EventTarget,
                         && (!widthExplicit || !heightExplicit)) {
                         UiScheduler.scheduleInAnimationFrame(() -> {
                             if (isShowing() && getScene() != null) {
+                                // The sizes measured before (0 for elements not in the DOM, ex: the input of a text
+                                // field) are cached in the scene graph => clearing all caches before measuring again
+                                NodeHelper.webfx_forceWholeSceneGraphLayout(getScene());
                                 getScene().impl_preferredSize();
                                 adjustSize(true);
                                 if (!xExplicit && !yExplicit)

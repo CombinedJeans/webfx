@@ -14,7 +14,6 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 
-import java.lang.ref.WeakReference;
 import java.util.Optional;
 
 import static javafx.scene.control.ButtonBar.ButtonData;
@@ -499,10 +498,13 @@ public class Dialog<R> implements EventTarget {
         };
 */
 
-        WeakReference<DialogPane> dialogPaneRef = new WeakReference<>(null);
+        // WebFX: plain field instead of WeakReference (as in OpenJFX). It only remembers the previous value, which the
+        // property itself was holding until now. And new WeakReference<>(null) fails with TeaVM WASM (JS WeakRef
+        // doesn't accept null => "TypeError: WeakRef: invalid target"), so no dialog could be opened.
+        DialogPane previousDialogPane;
 
         protected void invalidated() {
-            DialogPane oldDialogPane = dialogPaneRef.get();
+            DialogPane oldDialogPane = previousDialogPane;
             if (oldDialogPane != null) {
                 // clean up
                 oldDialogPane.expandedProperty().removeListener(expandedListener);
@@ -535,7 +537,7 @@ public class Dialog<R> implements EventTarget {
             // push the new dialog down into the implementation for rendering
             dialog.setDialogPane(newDialogPane);
 
-            dialogPaneRef = new WeakReference<>(newDialogPane);
+            previousDialogPane = newDialogPane;
         }
     };
 
