@@ -15,7 +15,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
-import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -228,16 +227,18 @@ public class DialogPane extends Pane {
             return "graphic";
         }
 
-        WeakReference<Node> graphicRef = new WeakReference<>(null);
+        // WebFX: plain field instead of WeakReference (see Dialog.dialogPane: new WeakReference<>(null) fails with
+        // TeaVM WASM). It only remembers the previous value, which the property itself was holding until now.
+        Node previousGraphic;
 
         protected void invalidated() {
-            Node oldGraphic = graphicRef.get();
+            Node oldGraphic = previousGraphic;
             if (oldGraphic != null) {
                 getChildren().remove(oldGraphic);
             }
 
             Node newGraphic = getGraphic();
-            graphicRef = new WeakReference<>(newGraphic);
+            previousGraphic = newGraphic;
             updateHeaderArea();
         }
     };
@@ -397,15 +398,15 @@ public class DialogPane extends Pane {
 
     // --- header
     private final ObjectProperty<Node> header = new SimpleObjectProperty<Node>(null) {
-        WeakReference<Node> headerRef = new WeakReference<>(null);
+        Node previousHeader; // WebFX: plain field instead of WeakReference (see graphic)
         @Override protected void invalidated() {
-            Node oldHeader = headerRef.get();
+            Node oldHeader = previousHeader;
             if (oldHeader != null) {
                 getChildren().remove(oldHeader);
             }
 
             Node newHeader = getHeader();
-            headerRef = new WeakReference<>(newHeader);
+            previousHeader = newHeader;
             updateHeaderArea();
         }
     };
@@ -487,15 +488,15 @@ public class DialogPane extends Pane {
 
     // --- content
     private final ObjectProperty<Node> content = new SimpleObjectProperty<Node>(null) {
-        WeakReference<Node> contentRef = new WeakReference<>(null);
+        Node previousContent; // WebFX: plain field instead of WeakReference (see graphic)
         @Override protected void invalidated() {
-            Node oldContent = contentRef.get();
+            Node oldContent = previousContent;
             if (oldContent != null) {
                 getChildren().remove(oldContent);
             }
 
             Node newContent = getContent();
-            contentRef = new WeakReference<>(newContent);
+            previousContent = newContent;
             updateContentArea();
         }
     };
@@ -567,15 +568,15 @@ public class DialogPane extends Pane {
 
     // --- expandable content
     private final ObjectProperty<Node> expandableContentProperty = new SimpleObjectProperty<Node>(null) {
-        WeakReference<Node> expandableContentRef = new WeakReference<>(null);
+        Node previousExpandableContent; // WebFX: plain field instead of WeakReference (see graphic)
         @Override protected void invalidated() {
-            Node oldExpandableContent = expandableContentRef.get();
+            Node oldExpandableContent = previousExpandableContent;
             if (oldExpandableContent != null) {
                 getChildren().remove(oldExpandableContent);
             }
 
             Node newExpandableContent = getExpandableContent();
-            expandableContentRef = new WeakReference<Node>(newExpandableContent);
+            previousExpandableContent = newExpandableContent;
             if (newExpandableContent != null) {
                 newExpandableContent.setVisible(isExpanded());
                 newExpandableContent.setManaged(isExpanded());
@@ -1206,8 +1207,8 @@ public class DialogPane extends Pane {
             pending = true;
             headerTextPanel.requestLayout();
             Node content = getContent();
-            if (content instanceof Parent)
-                ((GridPane) content).requestLayout();
+            if (content instanceof Parent) // WebFX: was cast to GridPane => ClassCastException with TeaVM WASM
+                ((Parent) content).requestLayout();
             if (buttonBar instanceof Parent)
                 ((Parent) buttonBar).requestLayout();
             super.requestLayout();

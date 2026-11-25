@@ -7,7 +7,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.stage.Modality;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -145,7 +144,9 @@ public class Alert extends Dialog<ButtonType> {
      *
      **************************************************************************/
 
-    private WeakReference<DialogPane> dialogPaneRef;
+    // WebFX: plain field instead of WeakReference (see Dialog.dialogPane: new WeakReference<>(null) fails with TeaVM
+    // WASM). It only remembers the dialog pane the listeners are registered on.
+    private DialogPane previousDialogPane;
 
     private boolean installingDefaults = false;
     private boolean hasCustomButtons = false;
@@ -225,7 +226,7 @@ public class Alert extends Dialog<ButtonType> {
         dialogPane.setContentText(contentText);
         getDialogPane().getStyleClass().add("alert");
 
-        dialogPaneRef = new WeakReference<>(dialogPane);
+        previousDialogPane = dialogPane;
 
         hasCustomButtons = buttons != null && buttons.length > 0;
         if (hasCustomButtons)
@@ -387,7 +388,7 @@ public class Alert extends Dialog<ButtonType> {
     }
 
     private void updateListeners() {
-        DialogPane oldPane = dialogPaneRef.get();
+        DialogPane oldPane = previousDialogPane;
 
         if (oldPane != null) {
             oldPane.headerTextProperty().removeListener(headerTextListener);
@@ -407,6 +408,6 @@ public class Alert extends Dialog<ButtonType> {
             newPane.graphicProperty().addListener(graphicListener);
         }
 
-        dialogPaneRef = new WeakReference<>(newPane);
+        previousDialogPane = newPane;
     }
 }
